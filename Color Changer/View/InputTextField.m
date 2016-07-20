@@ -8,7 +8,7 @@
 
 #import "InputTextField.h"
 
-@implementation InputTextField
+@implementation InputTextField 
 
 - (instancetype) init {
     self = [super init];
@@ -26,8 +26,8 @@
 }
 
 - (BOOL) shouldChangeTextInRange:(UITextRange *)range replacementText:(NSString *)text {
-    if ([self.vcDelegate respondsToSelector: @selector (textEntered)]) {
-        [self.vcDelegate textEntered];
+    if ([self.vcDelegate respondsToSelector: @selector (textEntered:)]) {
+        [self.vcDelegate textEntered: text];
     }
     return YES;
 }

@@ -16,7 +16,7 @@
 #define kTopInset 20
 #define selfViewWidth self.view.frame.size.width
 
-@interface ViewController () <InputTextFieldDelegate, ColorChangingButtonDelegate, SaveButtonDelegate>
+@interface ViewController () <InputTextFieldDelegate, ColorChangingButtonDelegate, SaveButtonDelegate, UITableViewDelegate, UITableViewDataSource>
 
 @property IBOutlet InputTextField       *input;
 @property IBOutlet ColorChangingButton  *redButton;
@@ -24,6 +24,7 @@
 @property IBOutlet ColorChangingButton  *greenButton;
 @property IBOutlet SaveButton           *saveButton;
 @property IBOutlet OutputTableView      *output;
+@property          NSInteger            numberOfSaves;
 
 
 @end
@@ -66,6 +67,9 @@
     //Инициализация OutputTableView *output
     self.output = [OutputTableView new];
     [self.view addSubview: self.output];
+    self.numberOfSaves = 0;
+    self.output.delegate = (id) self;
+    self.output.dataSource = (id) self;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -75,20 +79,59 @@
 
 #pragma mark - InputTextFieldDelegate Realisation
 
-- (void) textEntered {
-    //typeSomeMethodsToDos
+- (void) textEntered: (NSString *) enteredText {
+    UITableViewCell *cell0 = [self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    [cell0.textLabel setText: [cell0.textLabel.text stringByAppendingString:enteredText]];
 }
 
 #pragma mark - ColorChangingButtondelegate Realisation
 
 - (void) changeColor:(MyColorChangingButtonType)colorChangingButtonType {
-    //typeSomeMethodsToDos
+    [self.output beginUpdates];
+    UITableViewCell *cell0 = [self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    UIColor *color;
+    switch (colorChangingButtonType) {
+        case MyColorChangingButtonTypeRed:
+            color = [UIColor redColor];
+            break;
+        case MyColorChangingButtonTypeYellow:
+            color = [UIColor yellowColor];
+            break;
+        case MyColorChangingButtonTypeGreen:
+            color = [UIColor greenColor];
+            break;
+    }
+    [[[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]]textLabel] setBackgroundColor: color];
+    [self.output endUpdates];
+    [self.output reloadRowsAtIndexPaths: [NSArray arrayWithObject: [NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
 }
 
 #pragma mark - SaveButtondelegate Realisation
 
 - (void) saveChanges {
     //typeSomeMethodsToDos
+}
+
+#pragma mark - UITableViewDataSource Realisation
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.numberOfSaves + 1;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSString *simpleTableIdentifier =
+    @"SimpleTableItem";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc]
+                initWithStyle:UITableViewCellStyleDefault
+                reuseIdentifier:simpleTableIdentifier];
+    }
+    if (!([indexPath isEqual: [NSIndexPath indexPathForRow:0 inSection:0] ])) {
+        cell.textLabel.text = [[[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] textLabel] text];
+        cell.textLabel.backgroundColor = [[[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] textLabel] backgroundColor];
+    }
+    return cell;
 }
 
 @end

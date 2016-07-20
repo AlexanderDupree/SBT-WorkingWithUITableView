@@ -12,7 +12,7 @@
 
 @required
 
-- (void) textEntered;
+- (void) textEntered: (NSString *) enteredText;
 
 @end
 
