@@ -82,14 +82,15 @@
 - (void) textEntered: (NSString *) enteredText {
     UITableViewCell *cell0 = [self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     [cell0.textLabel setText: [cell0.textLabel.text stringByAppendingString:enteredText]];
+    [self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    [self.output reloadRowsAtIndexPaths: [NSArray arrayWithObject: [NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-#pragma mark - ColorChangingButtondelegate Realisation
+#pragma mark - ColorChangingButtonDelegate Realisation
 
 - (void) changeColor:(MyColorChangingButtonType)colorChangingButtonType {
-    [self.output beginUpdates];
-    UITableViewCell *cell0 = [self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     UIColor *color;
+    UITableViewCell *cell0 = [self tableView: self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
     switch (colorChangingButtonType) {
         case MyColorChangingButtonTypeRed:
             color = [UIColor redColor];
@@ -101,15 +102,21 @@
             color = [UIColor greenColor];
             break;
     }
-    [[[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]]textLabel] setBackgroundColor: color];
-    [self.output endUpdates];
+    if (cell0 != nil) {
+        [cell0.textLabel setBackgroundColor: color];
+    }
+    //[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] ;
     [self.output reloadRowsAtIndexPaths: [NSArray arrayWithObject: [NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
 }
 
-#pragma mark - SaveButtondelegate Realisation
+#pragma mark - SaveButtonDelegate Realisation
 
 - (void) saveChanges {
-    //typeSomeMethodsToDos
+    [self.output beginUpdates];
+    self.numberOfSaves ++;
+    [self.output insertRowsAtIndexPaths:[NSArray arrayWithObject: [NSIndexPath indexPathForRow:1 inSection:0]] withRowAnimation:UITableViewRowAnimationFade];
+    //[self tableView: self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    [self.output endUpdates];
 }
 
 #pragma mark - UITableViewDataSource Realisation
@@ -119,17 +126,16 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSString *simpleTableIdentifier =
-    @"SimpleTableItem";
+    NSString *simpleTableIdentifier = @"Cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:simpleTableIdentifier];
     if (cell == nil) {
         cell = [[UITableViewCell alloc]
                 initWithStyle:UITableViewCellStyleDefault
                 reuseIdentifier:simpleTableIdentifier];
-    }
-    if (!([indexPath isEqual: [NSIndexPath indexPathForRow:0 inSection:0] ])) {
-        cell.textLabel.text = [[[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] textLabel] text];
-        cell.textLabel.backgroundColor = [[[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] textLabel] backgroundColor];
+        if (!([indexPath isEqual: [NSIndexPath indexPathForRow:0 inSection:0]])) {
+            cell.textLabel.text = [[[self tableView:self.output cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]] textLabel] text];
+            cell.textLabel.backgroundColor = [[[self tableView:self.output cellForRowAtIndexPath: [NSIndexPath indexPathForRow:0 inSection:0]] textLabel] backgroundColor];
+        }
     }
     return cell;
 }
